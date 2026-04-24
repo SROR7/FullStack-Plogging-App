@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -45,7 +46,6 @@ pipeline {
                     -Dsonar.sources=. \
                     -Dsonar.java.binaries=target
                     ''' 
-
                 }
             }
         }
@@ -58,6 +58,29 @@ pipeline {
             steps{
                 withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jdk17', maven: 'maven3', traceability: true) {
                     sh 'mvn deploy'
+                }
+            }
+        }
+        stage('Bulid & Tag Docker Image'){
+            steps{
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        sh "docker build -t sror/blogging-app:latest ."
+                    }
+                }
+            }
+        }
+        stage('Trivy Image Scan') {
+            steps {
+                sh "trivy image --format table -o image.txt sror/blogging-app:${IMAGE_TAG}"
+            }
+        }
+        stage('Push Docker Image'){
+            steps{
+                script{
+                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
+                        sh "docker push sror/blogging-app:${IMAGE_TAG}"
+                    }
                 }
             }
         }
