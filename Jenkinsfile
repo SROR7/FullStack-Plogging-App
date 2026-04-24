@@ -38,7 +38,8 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                    sh '''
+                    ${SCANNER_HOME}/bin/sonar-scanner \
                     -Dsonar.projectName=blogging-app \
                     -Dsonar.projectKey=blogging-app \
                     -Dsonar.sources=. \
