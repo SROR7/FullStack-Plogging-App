@@ -65,7 +65,7 @@ pipeline {
             steps{
                 script{
                     withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh "docker build -t sror/blogging-app:latest ."
+                        sh "docker build -t sror/blogging-app:${IMAGE_TAG} ."
                     }
                 }
             }
